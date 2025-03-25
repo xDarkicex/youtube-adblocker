@@ -1,0 +1,13 @@
+{
+  "name": "youtube-adblocker",
+  "version": "1.0.0",
+  "scripts": {
+    "icons": "./scripts/generate-icons.sh",
+    "prebuild": "npm run icons",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "typescript": "^5.8.2"
+  }
+}
