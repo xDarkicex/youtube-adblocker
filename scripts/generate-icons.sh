@@ -58,17 +58,25 @@ for size in "${SIZES[@]}"; do
     if [[ "$size" -ne 128 ]]; then
         echo "📐 Resizing to ${size}px..."
         case $size in
-            48) sharpening="$SHARPEN_48" ;;
-            16) sharpening="$SHARPEN_16" ;;
-            *) sharpening="0x0+0+0" ;;
+            48)
+                magick "${OUTPUT_DIR}/icon128.png" \
+                    -filter Lanczos -resize 48x48 \
+                    -unsharp "$SHARPEN_48" \
+                    -define png:compression-level=9 \
+                    "${OUTPUT_DIR}/icon48.png"
+                ;;
+            16)
+                echo "🔮 Adding extra magic for 16px transparency..."
+                magick "${OUTPUT_DIR}/icon128.png" \
+                    -filter Lanczos -resize 16x16 \
+                    -unsharp "$SHARPEN_16" \
+                    -alpha on \
+                    -background transparent \
+                    -define png:format=png32 \
+                    -define png:compression-level=9 \
+                    "${OUTPUT_DIR}/icon16.png"
+                ;;
         esac
-        
-        magick "${OUTPUT_DIR}/icon128.png" \
-            -filter Lanczos -resize "${size}x${size}" \
-            -unsharp "$sharpening" \
-            -background none -alpha background \
-            -define png:compression-level=9 \
-            "${OUTPUT_DIR}/icon${size}.png"
     fi
 done
 
