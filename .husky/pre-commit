@@ -1,4 +1,2 @@
-#!/bin/sh
 npm run icons
-git add icons/
-
+git add public/icons/

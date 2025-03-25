@@ -1,14 +1,33 @@
 {
-    "manifest_version": 3,
-    "name": "YouTube AdBlocker",
-    "version": "0.1.0",
-    "description": "Blocks Ads on YouTube, with precision.",
-    "permissions": ["webRequest", "webNavigation", "storage"],
-    "host_permissions": ["*://*.youtube.com/*"],
-    "content_scripts": [
-      {
-        "matches": ["*://*.youtube.com/*"],
-        "js": ["dist/content.js"]
-      }
-    ]
+  "manifest_version": 3,
+  "name": "AdNinja",
+  "version": "1.0.0",
+  "description": "Surgical YouTube ad removal",
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://*.youtube.com/*",
+    "*://*.googlevideo.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [{
+    "matches": ["*://*.youtube.com/*"],
+    "js": ["content.js"],
+    "run_at": "document_end"
+  }],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "public/icons/icon16.png",
+      "48": "public/icons/icon48.png",
+      "128": "public/icons/icon128.png"
+    }
   }
+}

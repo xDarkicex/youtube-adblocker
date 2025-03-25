@@ -3,8 +3,8 @@
 # --------------------------
 # Configuration
 # --------------------------
-SOURCE_ICON="icons/icon.png"
-OUTPUT_DIR="icons"
+SOURCE_ICON="public/icons/icon.png"
+OUTPUT_DIR="public/icons"
 SIZES=(128 48 16)
 
 # Sharpening parameters
