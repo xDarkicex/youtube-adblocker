@@ -3,15 +3,24 @@
   "version": "1.0.0",
   "scripts": {
     "icons": "./scripts/generate-icons.sh",
-    "prebuild": "npm run icons",          
-    "prepare": "husky install",           
-    "postinstall": "husky install",       
-    "test:hooks": "HUSKY_DEBUG=1 git commit -m \"Test\" --no-verify"
+    "prebuild": "npm run icons",
+    "build": "webpack",
+    "watch": "webpack --watch",
+    "prepare": "husky install",
+    "postinstall": "husky install"
   },
+  "type": "module",
   "devDependencies": {
     "@types/chrome": "^0.0.310",
+    "copy-webpack-plugin": "^12.0.2",
     "husky": "~9.1.7",
-    "typescript": "^5.8.2"
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.2",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
   },
-  "files": ["dist", "public"]            
+  "files": [
+    "dist",
+    "public"
+  ]
 }

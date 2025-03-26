@@ -1,33 +1,49 @@
 {
   "manifest_version": 3,
-  "name": "AdNinja",
-  "version": "1.0.0",
-  "description": "Surgical YouTube ad removal",
+  "name": "AdNinja: YouTube Ad Blocker",
+  "version": "1.1.0",
+  "description": "Advanced, surgical YouTube ad removal with performance tracking",
+  "author": "Your Name",
   "permissions": [
-    "webRequest",
-    "webRequestBlocking",
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess",
     "storage",
-    "scripting"
+    "scripting",
+    "alarms"
   ],
   "host_permissions": [
     "*://*.youtube.com/*",
-    "*://*.googlevideo.com/*"
+    "*://*.googlevideo.com/*",
+    "*://*.doubleclick.net/*",
+    "https://raw.githubusercontent.com/*"
   ],
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
-  "content_scripts": [{
-    "matches": ["*://*.youtube.com/*"],
-    "js": ["content.js"],
-    "run_at": "document_end"
-  }],
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "public/icons/icon16.png",
-      "48": "public/icons/icon48.png",
-      "128": "public/icons/icon128.png"
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["bridge.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    },
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["performance.js", "content.js"],
+      "run_at": "document_end",
+      "all_frames": false,
+      "world": "MAIN"
     }
-  }
+  ],
+  "action": {
+    "default_popup": "public/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "minimum_chrome_version": "88",
+  "update_url": "https://clients2.google.com/service/update2/crx"
 }
