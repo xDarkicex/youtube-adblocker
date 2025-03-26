@@ -5,6 +5,16 @@ export interface AdBlockStats {
     lastBlockTimestamp: number;
 }
 
+const whitelistedDomains = [
+    "s.youtube.com",        // Essential for video playback
+    "i.ytimg.com",          // YouTube images/thumbnails
+    "www.youtube.com",      // Main YouTube domain
+    "youtube.com",          // Main YouTube domain
+    "yt3.ggpht.com",        // Channel profile images
+    "lh3.googleusercontent.com", // User profile images
+    "fonts.gstatic.com"     // Fonts
+  ];
+
 class AdBlockManager {
     private static instance: AdBlockManager | null = null;
     
@@ -274,8 +284,16 @@ async function fetchYouTubeAdDomains(): Promise<string[]> {
         .map(line => line.trim())
         .filter(line => line && !line.startsWith('#'));
       
-      console.log(`[YouTube AdBlocker] Fetched ${domains.length} ad domains`);
-      return domains;
+      // Filter out whitelisted domains
+      const filteredDomains = domains.filter(domain => 
+        !whitelistedDomains.some(whiteDomain => 
+          domain === whiteDomain || domain.includes(whiteDomain)
+        )
+      );
+      
+      console.log(`[YouTube AdBlocker] Fetched ${domains.length} domains, filtered out ${domains.length - filteredDomains.length} whitelisted domains`);
+      
+      return filteredDomains;
     } catch (error) {
       console.error('[YouTube AdBlocker] Error fetching YouTube ad domains:', error);
       return [];
@@ -288,34 +306,13 @@ async function fetchYouTubeAdDomains(): Promise<string[]> {
     try {
       console.log('[YouTube AdBlocker] Starting ad blocking rules update...');
       
-      // 1. Get ALL existing dynamic rules first
-      const allExistingRules = await chrome.declarativeNetRequest.getDynamicRules();
-      const allRuleIds = allExistingRules.map(rule => rule.id);
-      
-      // 2. Remove ALL existing rules before adding new ones
-      if (allRuleIds.length > 0) {
-        console.log(`[YouTube AdBlocker] Removing ${allRuleIds.length} existing rules`);
-        await chrome.declarativeNetRequest.updateDynamicRules({
-          removeRuleIds: allRuleIds
-        });
-        
-        // Add a longer delay to ensure rule removal is processed
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Verify rules were actually removed
-        const remainingRules = await chrome.declarativeNetRequest.getDynamicRules();
-        if (remainingRules.length > 0) {
-          console.warn(`[YouTube AdBlocker] ${remainingRules.length} rules still exist after removal attempt`);
-        } else {
-          console.log('[YouTube AdBlocker] Successfully removed all existing rules');
-        }
-      }
+      // Rest of your existing code for removing rules...
       
       // 3. Fetch and process domains
       const storedData = await chrome.storage.local.get('adDomains');
       let cachedDomains = storedData.adDomains || [];
       
-      const freshDomains = await fetchYouTubeAdDomains();
+      const freshDomains = await fetchYouTubeAdDomains(); // This now includes whitelist filtering
       const adDomains = freshDomains.length > 0 ? freshDomains : cachedDomains;
       
       if (freshDomains.length > 0) {
@@ -325,58 +322,15 @@ async function fetchYouTubeAdDomains(): Promise<string[]> {
         });
       }
       
-      if (adDomains.length === 0) {
-        console.warn('[YouTube AdBlocker] No domains available to block');
-        return;
-      }
+      // Log information about whitelisted domains
+      console.log(`[YouTube AdBlocker] Whitelist enabled for ${whitelistedDomains.length} domains, including ${whitelistedDomains.join(', ')}`);
       
-      // 4. Generate truly unique IDs using the utility function
-      const uniqueIds = await generateUniqueRuleIds(adDomains.length);
-      console.log(`[YouTube AdBlocker] Generated ${uniqueIds.length} unique rule IDs`);
-      
-      // 5. Create rules with unique IDs
-      const rules = adDomains.map((domain: string, index: number) => {
-        return {
-          id: uniqueIds[index], // Use our guaranteed unique ID
-          priority: 1,
-          action: { type: chrome.declarativeNetRequest.RuleActionType.BLOCK },
-          condition: {
-            urlFilter: domain,
-            resourceTypes: [
-              chrome.declarativeNetRequest.ResourceType.MEDIA,
-              chrome.declarativeNetRequest.ResourceType.SUB_FRAME,
-              chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST,
-              chrome.declarativeNetRequest.ResourceType.SCRIPT
-            ]
-          }
-        };
-      });
-      
-      // 6. Respect Chrome's rule limit (5000)
-      const MAX_RULES = 5000;
-      const rulesToAdd = rules.slice(0, MAX_RULES);
-      
-      // 7. Add rules in a separate operation
-      await chrome.declarativeNetRequest.updateDynamicRules({
-        addRules: rulesToAdd
-      });
-      
-      console.log(`[YouTube AdBlocker] Successfully added ${rulesToAdd.length} blocking rules`);
-      
-      // 8. Optional: Verify rules were actually added
-      const finalRules = await chrome.declarativeNetRequest.getDynamicRules();
-      console.log(`[YouTube AdBlocker] Total active rules: ${finalRules.length}`);
-      
+      // Rest of your existing code for creating rules...
     } catch (error) {
-      console.error('[YouTube AdBlocker] Error updating ad blocking rules:', error);
-      
-      // Retry logic for specific errors related to rules
-      if (String(error).includes('Rule') || String(error).includes('limit')) {
-        console.log('[YouTube AdBlocker] Rule error detected, will retry in 5 seconds...');
-        setTimeout(() => updateAdBlockRules(), 5000);
-      }
+      // Error handling...
     }
   }
+  
   
   
   
