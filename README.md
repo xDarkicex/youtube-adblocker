@@ -26,7 +26,7 @@ Tired of YouTube ads interrupting your binge-watching sessions? This extension i
 
 ### Dynamic Domain List
 
-Powered by the comprehensive ad domain list from `kboghdady/youTube_ads_4_pi-hole`:
+Powered by the comprehensive ad domain list from <a href="https://github.com/kboghdady/youTube_ads_4_pi-hole" style="text-decoration: none; color: #007bff; font-weight: 600;">kboghdady/youTube_ads_4_pi-hole</a>:
 
 - Automatically refreshed every 24 hours
 - Offline-ready with local caching
